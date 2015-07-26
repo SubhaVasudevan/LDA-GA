@@ -1,0 +1,28 @@
+choc1.txt	X	food preparation form paste solid block made roasted ground cacao seeds typically sweetened. 
+choc10.txt	X	a confection produced fruit tropical tree theobroma cacao. the fruit cacao beans fermented dried roasted ground resulting product called cocoa liquor separated cocoa butter smooth solid fat food cosmetics cocoa powder 
+choc2.txt	X	preparation seeds cacao roasted husked ground sweetened flavored vanilla. 
+choc3.txt	X	food made cacao beans eaten candy flavoring ingredient sweet foods 
+choc4.txt	X	fermented roasted shelled ground cacao seeds combined sweetener flavoring agent. 
+choc5.txt	X	food made cocoa sugar brown eaten candy food cakes 
+choc6.txt	X	the definition chocolate food substance made cacao beans mixed sweetener deep brownish reddish grayish coloring. 
+choc7.txt	X	a food preparation form paste solid block made roasted ground cacao seeds typically sweetened 
+choc8.txt	X	food made roasted ground cacao beans 
+choc9.txt	X	food preparation made roasted ground cacao seeds sweetened flavoured 
+mov1.txt	X	story event recorded camera set moving images shown theater television motion picture. 
+mov2.txt	X	motion-picture theater 
+mov3.txt	X	recording moving images tells story people watch screen television movies showing movie theater movie theater 
+mov4.txt	X	a recorded sequence film video images displayed screen sufficient rapidity create illusion motion continuity. 
+mov5.txt	X	story series events recorded camera shown moving pictures screen theater television 
+mov6.txt	X	a story event recorded camera set moving images shown theater television motion picture. 
+mov7.txt	X	the definition movie motion picture film produced entertainment tells story. 
+mov8.txt	X	series moving pictures telling story shown theater television film 
+zoo1.txt	X	establishment maintains collection wild animals typically park gardens study conservation display public. 
+zoo10.txt	X	facility animals confined enclosures displayed public 
+zoo2.txt	X	also called zoological garden. parklike area live animals cages large enclosures public exhibition. 
+zoo3.txt	X	place kinds animals people 
+zoo4.txt	X	a park institution living animals exhibited public. also called zoological garden. 
+zoo5.txt	X	an establishment maintains collection wild animals typically park gardens study conservation display public. 
+zoo6.txt	X	the zoo place animals people 
+zoo7.txt	X	area animals esp. wild animals people 
+zoo8.txt	X	large place types wild animals cages people 
+zoo9.txt	X	place live animals studied bred exhibited public 
