@@ -11,14 +11,28 @@ import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 
 public class Main {
 
 	static KeywordExtractor kwe;
 	static HashMap<String, Long> javaKeys;
+	
+	 //make a list of documents;
+	static List<Document> documentList= new ArrayList<Document>();
+	
+	static //make a list/hashmap of of articles
+	//add all the files ending with _a to this Map indicating that they are articles
+	Map<String, Article> articleMap = new HashMap<String, Article>();
+	
+	static //make a list of source files
+	Map<String, SourceFile> sourceFileMap = new HashMap<String, SourceFile>();
 
 	public static void init(String s)
 	{
@@ -70,9 +84,7 @@ public class Main {
 			if (new File(baseDir + "/" + file).isDirectory())
 				recurse(baseDir + "/" + file, mirrorDir + "/" + file);
 			else {
-				// Check if file ends in .java and if it does, tokenize it
-				//if (file.endsWith(".java") == false)
-				//	continue;
+								
 				// Initialize a stream tokenizer
 				FileReader rd = new FileReader(baseDir + "/" + file);
 				StreamTokenizer st = new StreamTokenizer(rd);
@@ -82,10 +94,6 @@ public class Main {
 				st.wordChars('_', '_');
                                 // st.wordChars('.', '.');
 				st.eolIsSignificant(true);
-
-				// Discard comments
-				//st.slashSlashComments(true);
-				//st.slashStarComments(true);
 
 				// Parse file
 				int token = st.nextToken();
@@ -106,7 +114,7 @@ public class Main {
 							break;
 						}
 						previous = st.sval;
-						// Check if the word a stopword, java keyword, etc.
+						// Check if the word a stopword,  etc.
 						// If not, append it to the content to be written back
 						if (categorize(st.sval))
 							content += st.sval.toLowerCase() + " ";
@@ -115,8 +123,7 @@ public class Main {
 					case StreamTokenizer.TT_NUMBER:
 						// Check for numbers, decimal and hexadecimal
 						if ((token = st.nextToken()) != StreamTokenizer.TT_EOF) {
-							if (token == StreamTokenizer.TT_WORD && st.sval.startsWith("x"))
-								;
+							if (token == StreamTokenizer.TT_WORD && st.sval.startsWith("x"));
 							else
 								st.pushBack();
 						}
@@ -131,6 +138,21 @@ public class Main {
 					token = st.nextToken();
 				}
 				rd.close();
+				
+				//check if the file is of the type article
+				//if the file is of the type article it has an _a in it
+				if(file.contains("_a")){
+					Article newArticle = new Article(file, content);
+					documentList.add(newArticle);
+					articleMap.put(file, newArticle);
+				} else {
+					SourceFile newSource = new SourceFile(file, content);
+					documentList.add(newSource);
+					sourceFileMap.put(file, newSource);
+				}
+				
+				
+				//System.out.println(content);
 
 				// Write content to the file
 				if (content.length() != 0) {
@@ -143,7 +165,21 @@ public class Main {
 					wt.write(content);
 					wt.close();
 				}
+				
+				
 			}
+		}
+		
+		MalletInput.createMalletInput(documentList);
+		
+	}
+	
+	public static void printOutput(List<Cluster> clusters) {
+		for(int i = 0 ; i < clusters.size() ; i++) {
+			System.out.print(clusters.get(i).clusterNo);
+			System.out.print(clusters.get(i).articles+"        ");
+			System.out.println(clusters.get(i).sourceFiles );
+			System.out.println();
 		}
 	}
         
@@ -162,5 +198,24 @@ public class Main {
 
 		// Mirror directory structure while retaining only tokenized .java source files
 		recurse(dataDir, mirrorDir);
+		
+		//call the genetic logic function that calls the topic modelling
+		//this completes all LDA function 
+		//the distribution is found in distribution .text
+		//the code to write the topics to a file is still to be written.
+		geneticLogic.geneticLogic();
+		
+		
+		
+		//create clusters based on the distribution.txt
+		List<Cluster> clusters = Cluster.createClusters();
+		
+		//by cleaning the clusters
+		//we got through the obtained list of clusters
+		//check for conditions where there are more than 2 articles in the same cluster
+		//perform the job of splitting the cluster into 2
+		Cluster.cleanCluster(clusters, articleMap, sourceFileMap);
+		
+		printOutput(clusters);
 	}
 }

@@ -81,7 +81,8 @@ public class KeywordExtractor { //implements Singleton {
             unprocessed.add(components[i]);
         }
         ArrayList firstCut = removeUnderScore(result);
-        ArrayList caseCut = parseCase(firstCut);
+        ArrayList secondCut = removeHiphen(firstCut);
+        ArrayList caseCut = parseCase(secondCut);
        //replace this with better rules later
       /*  if(caseCut.size()==1 && 
         		!(codeFragment.
@@ -117,6 +118,19 @@ public class KeywordExtractor { //implements Singleton {
         while(it.hasNext()){
             String s = (String)it.next();
             String[] words = s.split("[_$.]");
+            for(int i = 0; i< words.length;++i){
+                result.add(words[i].trim());
+            }
+        }
+        return result;
+    }
+    
+    private ArrayList removeHiphen(ArrayList tokens){
+        ArrayList result = new ArrayList();
+        Iterator it = tokens.iterator();
+        while(it.hasNext()){
+            String s = (String)it.next();
+            String[] words = s.split("[-$.]");
             for(int i = 0; i< words.length;++i){
                 result.add(words[i].trim());
             }

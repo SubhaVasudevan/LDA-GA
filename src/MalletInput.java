@@ -5,10 +5,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 
 public class MalletInput {
 
+	
+	//the main function reads the input from the written preprocessed files
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		
@@ -37,6 +40,23 @@ public class MalletInput {
 
 		}
 		writer.close();
+	}
+	
+	
+	//this function is written in an effort to avoid writing to the preprocessed folder and reading it back again
+	public static void createMalletInput(List<Document> documentList) throws FileNotFoundException, UnsupportedEncodingException{
+		
+		System.out.println(" the number of documents is " + documentList.size());
+		
+		PrintWriter writer = new PrintWriter("input1.txt", "UTF-8");
+		
+		for(Document d : documentList) {
+			writer.print(d.name + "	X	"+d.getKeyWords());
+			writer.println();
+		}
+		writer.close();
+		
+		
 	}
 	
 }

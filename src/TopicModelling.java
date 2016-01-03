@@ -11,7 +11,7 @@ import java.io.*;
 public class TopicModelling {
 
 	//public static void main(String[] args) throws IOException {
-	public void LDA(int numberOfTopics, int numberOfIterations) throws IOException {
+	public void LDA(int numberOfTopics, int numberOfIterations, boolean topicFile) throws IOException {
 		// TODO Auto-generated method stub
 		
 		//import documents from the texts to Mallet format
@@ -37,7 +37,7 @@ public class TopicModelling {
         /**
          * the stopwords file that is to be used is to be set in as the file value here.
          */
-        Reader fileReader = new InputStreamReader(new FileInputStream(new File("input.txt")), "UTF-8");
+        Reader fileReader = new InputStreamReader(new FileInputStream(new File("input1.txt")), "UTF-8");
         instances.addThruPipe(new CsvIterator (fileReader, Pattern.compile("^(\\S*)[\\s,]*(\\S*)[\\s,]*(.*)$"),3, 2, 1)); // data, label, name fields
 
         
@@ -71,10 +71,6 @@ public class TopicModelling {
         LabelSequence topics = model.getData().get(0).topicSequence;
         
         Formatter out = new Formatter(new StringBuilder(), Locale.US);
-        for (int position = 0; position < tokens.getLength(); position++) {
-            //out.format("%s-%d ", dataAlphabet.lookupObject(tokens.getIndexAtPosition(position)), topics.getIndexAtPosition(position));
-        }
-        System.out.println(out);
         
         // Estimate the topic distribution of the first instance, 
         //  given the current Gibbs state.
@@ -83,19 +79,29 @@ public class TopicModelling {
         // Get an array of sorted sets of word ID/count pairs
         ArrayList<TreeSet<IDSorter>> topicSortedWords = model.getSortedWords();
         
-        // Show top 5 words in topics with proportions for the first document
-        for (int topic = 0; topic < numTopics; topic++) {
-            Iterator<IDSorter> iterator = topicSortedWords.get(topic).iterator();
+        
+        //writing the topics to the file if topicFile is true
+        if(topicFile == true) {
+        	
+    		out = new Formatter("topic.txt");
+
+        	// Show top 5 words in topics with proportions for the first document
+        	for (int topic = 0; topic < numTopics; topic++) {
+        		Iterator<IDSorter> iterator = topicSortedWords.get(topic).iterator();
             
-            out = new Formatter(new StringBuilder(), Locale.US);
-            out.format("%d\t%.3f\t", topic, topicDistribution[topic]);
-            int rank = 0;
-            while (iterator.hasNext() && rank < 10) {
-                IDSorter idCountPair = iterator.next();
-                out.format("%s ", dataAlphabet.lookupObject(idCountPair.getID()));
-                rank++;
-            }
-            System.out.println(out);
+        		//out = new Formatter(new StringBuilder(), Locale.US);
+        		out.format("\n%d\t%.3f\t", topic, topicDistribution[topic]);
+        		int rank = 0;
+        		//while (iterator.hasNext()) {
+        		while (iterator.hasNext() && rank < 20) {
+        			IDSorter idCountPair = iterator.next();
+        			out.format("%s ", dataAlphabet.lookupObject(idCountPair.getID()));
+        			rank++;
+        		}
+        		//System.out.println(out);
+        	}
+    		out.close();
+
         }
         
         // Create a new instance with high probability of topic 0

@@ -9,21 +9,26 @@ import com.google.common.collect.Multimap;
 
 public class geneticLogic {
 
-	public static void main(String[] args) throws IOException, InterruptedException {
-		
+	//public static void main(String[] args) throws IOException, InterruptedException {
+	public static void geneticLogic() throws IOException, InterruptedException {
 		//the initial population of size 6
 		int[][] initialPopulation = new int[6][2];
+		
+		boolean maxFitnessFound = false;
 		
 		//populating the initial population
 		for(int i = 0 ; i < initialPopulation.length ; i++ ) {
 			
 			//the first value is the number of topics. Assign a range which you think is reasonable
 			//the second value is the number of iterations
-			initialPopulation[i][0] = (int) Math.floor(Math.random()*10 + 2);
+			initialPopulation[i][0] = (int) Math.floor(Math.random()*10 + 3);
 			initialPopulation[i][1] = (int) Math.floor(Math.random()*1000 + 1);
+			
+			//initialPopulation[i][0] = 2;
+		    //initialPopulation[i][1] = 500;
 		}
 		
-		while( true) {
+		while( !maxFitnessFound) {
 			
 			//to get the fitness values
 			double[] fitnessValues = new double[6];
@@ -40,7 +45,7 @@ public class geneticLogic {
 			for( int i = 0 ; i < initialPopulation.length ; i++) {
 				
 				//invoke the LDA function
-				tm.LDA(initialPopulation[i][0], initialPopulation[i][1]);
+				tm.LDA(initialPopulation[i][0], initialPopulation[i][1], false);
 						
 				//number of topics - the first value
 				int numberOfTopics = initialPopulation[i][0];
@@ -183,19 +188,29 @@ public class geneticLogic {
 						/**
 						 * Please find what would be a suitable fitness to classify the set of documents that you choose
 						 */
-						if(maxFitness > 0.95) {
+						if(maxFitness > 0.90) {
 							//run the function again to get the words in each topic
-							tm.LDA(initialPopulation[j][0],initialPopulation[j][1]);
+							//the third parameter states that the topics are to be written to a file
+							tm.LDA(initialPopulation[j][0],initialPopulation[j][1], true);
 							System.out.println("the best distribution is " + initialPopulation[j][0] + " topics and " + initialPopulation[j][1] + "iterations and fitness is " + maxFitness);
-							System.exit(0);
+							maxFitnessFound = true;
+							break;						
 						}
 						maxFitnessChromosome = j;
 					}
+				}
+				
+				if(maxFitnessFound) {
+					break;
 				}
 			
 				//copy the chromosome with high fitness to the next generation
 				newPopulation[i] = initialPopulation[maxFitnessChromosome];
 				fitnessValues[maxFitnessChromosome] = Integer.MIN_VALUE;
+			}
+			
+			if(maxFitnessFound) {
+				break;
 			}
 		
 		
