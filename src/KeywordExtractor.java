@@ -130,7 +130,7 @@ public class KeywordExtractor { //implements Singleton {
         Iterator it = tokens.iterator();
         while(it.hasNext()){
             String s = (String)it.next();
-            String[] words = s.split("[-$.]");
+            String[] words = s.split("[—$.]");
             for(int i = 0; i< words.length;++i){
                 result.add(words[i].trim());
             }

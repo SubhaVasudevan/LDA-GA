@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -44,13 +45,9 @@ public class Cluster {
 	//assigns the keywords to the appropraite topic
 	public static List<Cluster> createClusters() {
 		
-		//
-		//
-		//
+		
 		System.out.println("inside create clusters");
-		//
-		//
-		//
+		
 		
 		
 		List<Cluster> clusters = new ArrayList<Cluster> ();
@@ -149,6 +146,270 @@ public class Cluster {
 				//go check the next cluster
 				clusterNo++;
 			} else {
+				
+				/*
+				 * technique 3
+				 */
+				
+				//the no of articles in this cluster
+				int articleListSize  = cluster.articles.size();
+				
+				//get the articles of this cluster
+				List<Article> articlesInCluster = new ArrayList<Article>();
+				
+				for(int i = 0 ; i < articleListSize ; i++) {
+					//retrieve the article with the specific name from the map
+					Article article = articleMap.get(cluster.articles.get(i));
+					articlesInCluster.add(article);
+				}
+				
+				//for each of the articles in the cluster
+				//count the number of occurrence of each word
+				//find the unique keywords as well
+				//in the same time also count the total number of words in this article
+				//so instead of having the unique words as a set, lets change the unique
+				//words into a hashmap
+				for(int i = 0 ; i < articlesInCluster.size() ; i++) {
+					String[] keywordArray = articlesInCluster.get(i).getKeyWords().split(" ");
+					Set<String> keyWordSet = new HashSet<String>(Arrays.asList(keywordArray));
+					articlesInCluster.get(i).uniqueKeyWordSet = keyWordSet;
+					
+					//for every keywords add it to the hashtable
+					for(int j = 0 ; j < keywordArray.length ; j++) {
+						articlesInCluster.get(i).totalWordCount = articlesInCluster.get(i).totalWordCount + 1;
+						if(articlesInCluster.get(i).uniqueKeyWords.containsKey(keywordArray[j])) {
+							articlesInCluster.get(i).uniqueKeyWords.put(keywordArray[j], articlesInCluster.get(i).uniqueKeyWords.get(keywordArray[j]) + 1);
+						} else {
+							articlesInCluster.get(i).uniqueKeyWords.put(keywordArray[j], 1);
+						}
+					}
+				}
+				
+				//then remove the words from the articles that belong to other articles to
+				//now remove all the common keywords that are there between any two articles
+				// the articles should be left with keywords that are soleley special to them
+				//and do not overlap with the keywords of any other article
+				for(int i = 0 ; i < articlesInCluster.size(); i++) {
+					for(int j = i + 1 ; j < articlesInCluster.size() ; j++) {
+						articlesInCluster.get(i).uniqueKeyWordSet.removeAll(articlesInCluster.get(j).uniqueKeyWordSet);
+						articlesInCluster.get(j).uniqueKeyWordSet.removeAll(articlesInCluster.get(i).uniqueKeyWordSet);
+					}
+				}
+				
+				//go through the unique keyword and identify the percentage of occurence of each word
+				//let us assume the percentage of occurrence needs to be more than 1.5%
+				//remove the words that occur less than the threshold
+				
+				//for each of the articles
+				for(int i = 0 ; i < articlesInCluster.size(); i++) {
+					
+					//for every unique word in the article
+					for(String word : articlesInCluster.get(i).uniqueKeyWordSet){
+						//get the count of it from the hashtable
+						int count = articlesInCluster.get(i).uniqueKeyWords.get(word);
+						float percentage = (float)count / (float) articlesInCluster.get(i).totalWordCount;
+						
+						//if the percentage does not meet the threshold, remove the word from the set
+						if(percentage < 1.5) {
+							articlesInCluster.get(i).uniqueKeyWords.remove(word);
+						}
+					}
+				}
+				
+				//get the list of source files in the cluster
+				List<SourceFile> sourceFilesInCluster = new ArrayList<SourceFile> ();
+				
+				//retrieve the sourcefiles from the SourceFileMap
+				for(int i = 0 ; i < cluster.sourceFiles.size() ; i++) {
+					SourceFile source = sourceFileMap.get(cluster.sourceFiles.get(i));
+					sourceFilesInCluster.add(source);
+				}
+				
+				
+				
+				//create a new cluster for each of the article
+				//add the name of the article to the article list
+				//add this to the new cluster list
+				
+				ArrayList<Cluster> newClusterList = new ArrayList<Cluster>();
+				for(int i = 0 ; i < articlesInCluster.size() ; i++) {
+					Cluster newCluster = new Cluster();
+					newCluster.clusterNo = cluster.clusterNo+"_" + i;
+					newCluster.articles.add(articlesInCluster.get(i).name);
+					newClusterList.add(newCluster);
+				}
+				
+				//remove the old cluster from the clusters list
+				clusters.remove(clusterNo);
+				
+				//for each source file find the amount of overlap it has with each of the article
+				for(int i = 0 ; i < sourceFilesInCluster.size(); i++) {
+					System.out.println(sourceFilesInCluster.get(i).getName());
+					int max = Integer.MIN_VALUE;
+					int clusterOverLapNo = -1;
+					//compare the amount of overlap of the source file with each of the articles 
+					for(int j = 0 ; j < articlesInCluster.size() ; j++) {
+						int count  = 0;
+						for(String keyword:articlesInCluster.get(j).uniqueKeyWordSet) {
+							if(sourceFilesInCluster.get(i).keyWords.contains(" " + keyword + " ")) {
+								count = count + 1;
+							}
+						}
+						
+						System.out.println(articlesInCluster.get(j).getName() + " : " + count);
+						if(count > max) {
+							max = count;
+							clusterOverLapNo = j;
+						}
+					}
+					
+					newClusterList.get(clusterOverLapNo).sourceFiles.add(sourceFilesInCluster.get(i).name);
+				}
+				
+				clusters.addAll(newClusterList);
+				
+				
+				
+				/*
+				 * end of technique 3
+				 */
+				
+				
+				/*
+				 * technique 2
+				 *
+				
+				//the no of articles in this cluster
+				int articleListSize  = cluster.articles.size();
+				
+				//get the articles of this cluster
+				List<Article> articlesInCluster = new ArrayList<Article>();
+				
+				for(int i = 0 ; i < articleListSize ; i++) {
+					//retrieve the article with the specific name from the map
+					Article article = articleMap.get(cluster.articles.get(i));
+					articlesInCluster.add(article);
+				}
+				
+				//for each of the articles in the cluster
+				//count the number of occurrence of each word
+				//find the unique keywords as well
+				//in the same time also count the total number of words in this article
+				//so instead of having the unique words as a set, lets change the unique
+				//words into a hashmap
+				for(int i = 0 ; i < articlesInCluster.size() ; i++) {
+					String[] keywordArray = articlesInCluster.get(i).getKeyWords().split(" ");
+					Set<String> keyWordSet = new HashSet<String>(Arrays.asList(keywordArray));
+					articlesInCluster.get(i).uniqueKeyWordSet = keyWordSet;
+					
+					//for every keywords add it to the hashtable
+					for(int j = 0 ; j < keywordArray.length ; j++) {
+						articlesInCluster.get(i).totalWordCount = articlesInCluster.get(i).totalWordCount + 1;
+						if(articlesInCluster.get(i).uniqueKeyWords.containsKey(keywordArray[j])) {
+							articlesInCluster.get(i).uniqueKeyWords.put(keywordArray[j], articlesInCluster.get(i).uniqueKeyWords.get(keywordArray[j]) + 1);
+						} else {
+							articlesInCluster.get(i).uniqueKeyWords.put(keywordArray[j], 1);
+						}
+					}
+				}
+				
+				//then remove the words from the articles that belong to other articles to
+				//now remove all the common keywords that are there between any two articles
+				// the articles should be left with keywords that are soleley special to them
+				//and do not overlap with the keywords of any other article
+				for(int i = 0 ; i < articlesInCluster.size(); i++) {
+					for(int j = i + 1 ; j < articlesInCluster.size() ; j++) {
+						articlesInCluster.get(i).uniqueKeyWordSet.removeAll(articlesInCluster.get(j).uniqueKeyWordSet);
+						articlesInCluster.get(j).uniqueKeyWordSet.removeAll(articlesInCluster.get(i).uniqueKeyWordSet);
+					}
+				}
+				
+				//go through the unique keyword and identify the percentage of occurence of each word
+				//let us assume the percentage of occurrence needs to be more than 1.5%
+				//remove the words that occur less than the threshold
+				
+				//for each of the articles
+				for(int i = 0 ; i < articlesInCluster.size(); i++) {
+					
+					//for every unique word in the article
+					for(String word : articlesInCluster.get(i).uniqueKeyWordSet){
+						//get the count of it from the hashtable
+						int count = articlesInCluster.get(i).uniqueKeyWords.get(word);
+						float percentage = (float)count / (float) articlesInCluster.get(i).totalWordCount;
+						
+						//if the percentage does not meet the threshold, remove the word from the set
+						if(percentage < 1.5) {
+							articlesInCluster.get(i).uniqueKeyWords.remove(word);
+						}
+					}
+				}
+				
+				//get the list of source files in the cluster
+				List<SourceFile> sourceFilesInCluster = new ArrayList<SourceFile> ();
+				
+				//retrieve the sourcefiles from the SourceFileMap
+				for(int i = 0 ; i < cluster.sourceFiles.size() ; i++) {
+					SourceFile source = sourceFileMap.get(cluster.sourceFiles.get(i));
+					sourceFilesInCluster.add(source);
+				}
+				
+				//create a new cluster for each of the article
+				//add the name of the article to the article list
+				//add the list of source files which contains any of the unique keywords 
+				//to the list of source files of the particular cluster
+				for(int i = 0 ; i < articlesInCluster.size() ; i++) {
+					Cluster newCluster = new Cluster();
+					newCluster.clusterNo = cluster.clusterNo+"_" + i;
+					newCluster.articles.add(articlesInCluster.get(i).name);
+					
+					System.out.println(clusterNo +"  " + articlesInCluster.get(i).uniqueKeyWordSet);
+					
+					//find the list of source files by finding the 
+					//unique keywords of the article in the source file
+					//maintain a hashtable to see how much the article and source file overlaps
+					Hashtable<SourceFile, Integer> overLapCount = new Hashtable<SourceFile, Integer>();
+					Set<String> sourceFile = new HashSet<String> ();
+					for(String keyword:articlesInCluster.get(i).uniqueKeyWordSet) {
+						
+						for(int j = 0 ; j < sourceFilesInCluster.size(); j++) {
+							if(sourceFilesInCluster.get(j).keyWords.contains(" " + keyword + " ")) {
+								sourceFile.add(sourceFilesInCluster.get(j).name);
+								if(overLapCount.containsKey(sourceFilesInCluster.get(j))) {
+									int val = overLapCount.get(sourceFilesInCluster.get(j));
+									overLapCount.put(sourceFilesInCluster.get(j), val + 1);
+								} else {
+									overLapCount.put(sourceFilesInCluster.get(j), 1);
+								}
+							}
+						}
+					}
+					
+					//printing the hashset
+					for(SourceFile sf : overLapCount.keySet()) {
+						System.out.println(sf.name +":" + overLapCount.get(sf));
+					}
+					
+					//converting the set of sourcefiles to a list
+					newCluster.sourceFiles.addAll(sourceFile);
+					
+					
+					//add this cluster to the mainlist of clusters
+					clusters.add(newCluster);
+					
+				}
+			
+				//now the cluster with more than one article can be removed
+				clusters.remove(clusterNo);
+				*
+				 * end of technique 2
+				 */
+				
+				
+				/*
+				 * cluster cleaning technique 1
+				 *
+				 
+				
 				//the no of articles in this cluster
 				int articleListSize  = cluster.articles.size();
 				
@@ -222,6 +483,11 @@ public class Cluster {
 			
 				//now the cluster with more than one article can be removed
 				clusters.remove(clusterNo);
+				
+				*
+				*
+				*Cluster cleaning technique 1
+				*/
 			}
 			
 			

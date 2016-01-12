@@ -61,6 +61,7 @@ public class Main {
 		// For each split part, check if it is a java keyword, etc.
 		while(it.hasNext()){
 			String ss = (String) it.next();
+			ss= ss.trim();
 			if(s!=null && !javaKeys.containsKey(ss) && ss.indexOf('.')==-1){
 				if (!ss.matches("\\d*"))
 					return true;
