@@ -1,0 +1,52 @@
+
+import java.io.*;
+
+/**
+ * @author William Pfeffer
+ *         Created on 5/1/2015
+ *         <p>
+ *         Description:
+ *         <p>
+ *         Expected Use
+ *         <p>
+ *         Limitations:
+ */
+public class ES6Handler implements ITextExtractionHandler {
+
+    private static ES6Handler instance = null;
+
+    private ES6Handler() {
+    }
+
+    public static ES6Handler getInstance() {
+        if (instance == null) {
+            instance = new ES6Handler();
+        }
+        return instance;
+    }
+
+    @Override
+    public void Extract(File from, File to){
+        BufferedReader br;
+        BufferedWriter bw;
+        try {
+            br = new BufferedReader(new FileReader(from));
+            bw = new BufferedWriter(new FileWriter(to));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String plainText = line.replaceAll("[^\\w]", " ")
+                        .replaceAll("\\s+", " ")
+                        .toLowerCase();
+                bw.write(plainText);
+                bw.newLine();
+            }
+            br.close();
+            bw.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
