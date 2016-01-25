@@ -32,7 +32,7 @@ public class Cluster {
 	public static List<Cluster> createClusters() {
 		
 		
-		System.out.println("inside create clusters");
+		//System.out.println("inside create clusters");
 		
 		
 		
@@ -72,7 +72,7 @@ public class Cluster {
 		        e.printStackTrace();
 		 }
 		 
-		 System.out.println("Successfully scanned the file");
+		// System.out.println("Successfully scanned the file");
 		 
 		 //read the distribution.txt to find which file belongs to which topic
 		 file = new File("distribution.txt");
@@ -105,7 +105,7 @@ public class Cluster {
 		        e.printStackTrace();
 		 }
 		 
-		System.out.println("returning clusters");
+		//System.out.println("returning clusters");
 		return clusters;
 		
 	}
@@ -187,7 +187,7 @@ public class Cluster {
 	public static void cleanCluster(List<Cluster> clusters, Map<String, Article> articleMap, Map<String, SourceFile> sourceFileMap) {
 		int clusterNo = 0;
 		
-		System.out.println("inside Clean cluster");
+		//System.out.println("inside Clean cluster");
 		
 		//this is to make sure all the clusters are checked
 		while(clusterNo < clusters.size()) {
@@ -214,14 +214,14 @@ public class Cluster {
 				
 				for(int i = 0 ; i < articleListSize ; i++) {
 					//retrieve the article with the specific name from the map
-					System.out.println(cluster.articles.get(i));
+					//System.out.println(cluster.articles.get(i));
 					Article article = articleMap.get(cluster.articles.get(i));
-					System.out.println(article.name);
-					System.out.println(article.getKeyWords());
+					//System.out.println(article.name);
+					//System.out.println(article.getKeyWords());
 					articlesInCluster.add(article);
 				}
 				
-				System.out.println("The number of articles in the cluster " + articlesInCluster.size());
+				//System.out.println("The number of articles in the cluster " + articlesInCluster.size());
 				
 				//for each of the articles in the cluster
 				//count the number of occurrence of each word
@@ -331,10 +331,7 @@ public class Cluster {
 				
 				clusters.addAll(newClusterList);
 				
-				//there might be some clusters with no article in them but all source files
-				//to handle that we use the following technique/function
 				
-				cleanSourceFileCluster(clusters,sourceFileMap);
 				
 				
 				
