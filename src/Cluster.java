@@ -21,24 +21,10 @@ public class Cluster {
 	
 	//the keywords that are associated with this cluster
 	//these keywords are to be read from the topic.txt
-	List<String> keywords = new ArrayList<String>();
+	HashSet<String> keywords = new HashSet<String>();
 	
 	//each topic will and cluster will also be given a cluster/topicno
 	String clusterNo = "-1";
-	
-	/*public void Cluster (List<Document> documents) {
-		//if the document name has an _a in it classify it as a article else 
-		//classify it as a source file
-		
-		for(Document d: documents) {
-			if(d.getName().contains("_a")) {
-				articles.add((Article) d);
-			} else {
-				sourceFiles.add((SourceFile) d);
-			}
-		}
-	}*/
-	
 	
 	//reads the data from the topic.txt and distribution.txt
 	//create cluster for each topic
@@ -106,7 +92,7 @@ public class Cluster {
 		        	int topicNo = sc.nextInt(); //he topic it belongs to
 		        	
 		        	//see if the document is an article or source file by seeing the name
-		        	if(name.contains("_a")) {
+		        	if(name.contains("$AAA$")) {
 		        		clusters.get(topicNo).articles.add(name);
 		        	} else {
 		        		clusters.get(topicNo).sourceFiles.add(name);
@@ -123,6 +109,75 @@ public class Cluster {
 		return clusters;
 		
 	}
+	
+	//there might be some clusters which have onyl source files and no articles
+	//the source files in such clusters should be distributed to clusters with articles
+	//the keywords that are associated with those clusters need to be found 
+	//the source file can be transferred to the cluster with which it matches the most
+	public static void cleanSourceFileCluster(List<Cluster> clusters, Map<String, SourceFile> sourceFileMap) {
+		
+		int clusterNo = 0;
+		
+		//collect all the source files from clusters without an article
+		List<SourceFile> sourceFiles = new ArrayList<SourceFile>();
+		
+		//go through all the clusters
+		while(clusterNo < clusters.size()) {
+			Cluster cl = clusters.get(clusterNo);
+			
+			//check if the cluster has atleast one article
+			//at this point the clusters cannot have more than one article
+			
+			if(cl.articles.size() == 1) {
+				clusterNo++;
+			} else {
+				//if it has no articles then
+
+				
+				for(String name : cl.sourceFiles) {
+					SourceFile sf = sourceFileMap.get(name);
+					sourceFiles.add(sf);
+				}
+				
+				clusters.remove(clusterNo);
+			}
+		}
+		
+		
+		//once all the source files have been collected figure out which cluster these files belong to
+		for(int i = 0 ; i < sourceFiles.size() ; i++) {
+			int maxMatch = Integer.MIN_VALUE;
+			int maxMatchClusterNo = 0;
+			
+			//get all the keywords of the source file
+			String[] split = sourceFiles.get(i).keyWords.split(" ");
+			
+			//find how it matches with the keywords of each of the clusters
+			for(int j = 0 ; j < clusters.size() ; j++) {
+				int count = 0;
+				for(int k = 0 ; k < split.length ; k++) {
+					if(clusters.get(j).keywords.contains(split[k])) {
+						count++;
+					}
+				}
+				
+				//find the cluster with which it matches the most
+				if(count > maxMatch) {
+					maxMatch = count;
+					maxMatchClusterNo = j;
+				}
+			}
+			
+			
+			//assign the source file to that cluster
+			clusters.get(maxMatchClusterNo).sourceFiles.add(sourceFiles.get(i).name);
+			
+		}
+			
+	}
+	
+	
+	
 	
 	//find clusters that have 2 articles in them
 	//pick these clusters and identify the words that are unique to each of these articles
@@ -141,7 +196,7 @@ public class Cluster {
 			Cluster cluster = clusters.get(clusterNo);
 			
 			//check if the cluster has 1 article or more than 1 article
-			if(cluster.articles.size() == 1) {
+			if(cluster.articles.size() <= 1) {
 				
 				//go check the next cluster
 				clusterNo++;
@@ -159,9 +214,14 @@ public class Cluster {
 				
 				for(int i = 0 ; i < articleListSize ; i++) {
 					//retrieve the article with the specific name from the map
+					System.out.println(cluster.articles.get(i));
 					Article article = articleMap.get(cluster.articles.get(i));
+					System.out.println(article.name);
+					System.out.println(article.getKeyWords());
 					articlesInCluster.add(article);
 				}
+				
+				System.out.println("The number of articles in the cluster " + articlesInCluster.size());
 				
 				//for each of the articles in the cluster
 				//count the number of occurrence of each word
@@ -170,6 +230,8 @@ public class Cluster {
 				//so instead of having the unique words as a set, lets change the unique
 				//words into a hashmap
 				for(int i = 0 ; i < articlesInCluster.size() ; i++) {
+					System.out.println(articlesInCluster.get(i).name);
+					System.out.println(articlesInCluster.get(i).getKeyWords());
 					String[] keywordArray = articlesInCluster.get(i).getKeyWords().split(" ");
 					Set<String> keyWordSet = new HashSet<String>(Arrays.asList(keywordArray));
 					articlesInCluster.get(i).uniqueKeyWordSet = keyWordSet;
@@ -235,6 +297,7 @@ public class Cluster {
 				for(int i = 0 ; i < articlesInCluster.size() ; i++) {
 					Cluster newCluster = new Cluster();
 					newCluster.clusterNo = cluster.clusterNo+"_" + i;
+					newCluster.keywords = (HashSet<String>) articlesInCluster.get(i).uniqueKeyWordSet;
 					newCluster.articles.add(articlesInCluster.get(i).name);
 					newClusterList.add(newCluster);
 				}
@@ -249,14 +312,14 @@ public class Cluster {
 					int clusterOverLapNo = -1;
 					//compare the amount of overlap of the source file with each of the articles 
 					for(int j = 0 ; j < articlesInCluster.size() ; j++) {
-						int count  = 0;
+						int count = 0;
 						for(String keyword:articlesInCluster.get(j).uniqueKeyWordSet) {
 							if(sourceFilesInCluster.get(i).keyWords.contains(" " + keyword + " ")) {
 								count = count + 1;
 							}
 						}
 						
-						System.out.println(articlesInCluster.get(j).getName() + " : " + count);
+						//System.out.println(articlesInCluster.get(j).getName() + " : " + count);
 						if(count > max) {
 							max = count;
 							clusterOverLapNo = j;
@@ -267,6 +330,11 @@ public class Cluster {
 				}
 				
 				clusters.addAll(newClusterList);
+				
+				//there might be some clusters with no article in them but all source files
+				//to handle that we use the following technique/function
+				
+				cleanSourceFileCluster(clusters,sourceFileMap);
 				
 				
 				

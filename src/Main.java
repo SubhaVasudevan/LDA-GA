@@ -11,12 +11,9 @@ import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
 
 public class Main {
@@ -142,7 +139,7 @@ public class Main {
 				
 				//check if the file is of the type article
 				//if the file is of the type article it has an _a in it
-				if(file.contains("_a")){
+				if(file.contains("$AAA$")){
 					Article newArticle = new Article(file, content);
 					documentList.add(newArticle);
 					articleMap.put(file, newArticle);
@@ -182,6 +179,15 @@ public class Main {
 			System.out.println(clusters.get(i).sourceFiles );
 			System.out.println();
 		}
+		
+	}
+	
+	public static void calculatePrecisionRecall(List<Cluster> clusters) {
+		
+		
+		//read the truth file
+		File truthFile = new File("truthfile.txt");
+		
 	}
         
         
@@ -193,12 +199,19 @@ public class Main {
 		init("stopwords.txt");
 		
 		
-		String dataDir =  "data";		// name of the directory that contains the original source data
+		String dataDir =  "txtData";		// name of the directory that contains the original source data
 		String mirrorDir =  "processed-data";		//name of the directory where the modified data is to be stored
 
 
 		// Mirror directory structure while retaining only tokenized .java source files
 		recurse(dataDir, mirrorDir);
+		
+		
+		for(String article : articleMap.keySet()) {
+			Article ar = articleMap.get(article);
+			System.out.println(ar.name);
+			System.out.println(ar.getKeyWords());
+		}
 		
 		//call the genetic logic function that calls the topic modelling
 		//this completes all LDA function 
@@ -218,5 +231,7 @@ public class Main {
 		Cluster.cleanCluster(clusters, articleMap, sourceFileMap);
 		
 		printOutput(clusters);
+		
+		calculatePrecisionRecall(clusters);
 	}
 }

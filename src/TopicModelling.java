@@ -93,7 +93,7 @@ public class TopicModelling {
         		out.format("\n%d\t%.3f\t", topic, topicDistribution[topic]);
         		int rank = 0;
         		//while (iterator.hasNext()) {
-        		while (iterator.hasNext() && rank < 20) {
+        		while (iterator.hasNext() && rank < 40) {
         			IDSorter idCountPair = iterator.next();
         			out.format("%s ", dataAlphabet.lookupObject(idCountPair.getID()));
         			rank++;

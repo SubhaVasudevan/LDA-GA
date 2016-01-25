@@ -70,7 +70,7 @@ public class WikiScrape {
                 
                 
                 if(sources != null){
-                	truthFile.put(article_title, sources);
+                	truthFile.put(article_title + "$AAA$.html.txt", sources);
 
                     //FXML_Handler.setUpdateText(Constants.SCRAPE_MODE, "Valid Source Found - " + article_title);
 
@@ -118,7 +118,7 @@ public class WikiScrape {
                 int statusCode = response.statusCode();
                 if(statusCode == 200) {
                    // acceptedSources.add(url);
-                	acceptedSources.add("" + sourceFileCount);
+                	acceptedSources.add(sourceFileCount + ".html.txt");
                     saveSourceFile(response.parse());
                 }
 
@@ -162,7 +162,7 @@ public class WikiScrape {
 	public void saveWikiArticle(Document doc, String title){
         // Write the wiki file
         try {
-            File temp = new File("rawData/" + title + ".html");
+            File temp = new File("rawData/" + title + "$AAA$.html");
             BufferedWriter htmlWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), "UTF-8"));
             htmlWriter.write(doc.toString());
             htmlWriter.close();
@@ -192,7 +192,7 @@ public class WikiScrape {
 	
 	public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
 		
-		WikiScrape ws = new WikiScrape( 10 );
+		WikiScrape ws = new WikiScrape( 5 );
 		ws.scrape();
 		ws.writeGroundTruth();
 		TextConversion.convertToTxt();

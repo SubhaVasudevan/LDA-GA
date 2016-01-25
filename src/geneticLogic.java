@@ -36,7 +36,7 @@ public class geneticLogic {
 			/**
 			 * the total number of documents that are being processed. Put them in a folder and add the folder path here.
 			 */
-			int numberOfDocuments = new File("data").listFiles().length;
+			int numberOfDocuments = new File("txtData").listFiles().length;
 		
 			//create an instance of the topic modelling class
 			TopicModelling tm = new TopicModelling();
@@ -188,7 +188,7 @@ public class geneticLogic {
 						/**
 						 * Please find what would be a suitable fitness to classify the set of documents that you choose
 						 */
-						if(maxFitness > 0.90) {
+						if(maxFitness > 0.75) {
 							//run the function again to get the words in each topic
 							//the third parameter states that the topics are to be written to a file
 							tm.LDA(initialPopulation[j][0],initialPopulation[j][1], true);

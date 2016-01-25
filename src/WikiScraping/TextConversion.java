@@ -123,8 +123,8 @@ private static HashMap<String, ITextExtractionHandler> handlerMap;
 		
 		for (String file : files) {
 			
-			
-			File from = new File("rawData/file");
+			System.out.println(file);
+			File from = new File("rawData/"+file);
 	    	File to = new File("txtData/" + from.getName() +".txt");
 	    	String ext = getExtension(from);
 	    	
