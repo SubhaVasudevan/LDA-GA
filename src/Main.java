@@ -299,13 +299,6 @@ public class Main {
 		// Mirror directory structure while retaining only tokenized .java source files
 		recurse(dataDir, mirrorDir);
 		
-		
-		for(String article : articleMap.keySet()) {
-			Article ar = articleMap.get(article);
-			System.out.println(ar.name);
-			System.out.println(ar.getKeyWords());
-		}
-		
 		//call the genetic logic function that calls the topic modelling
 		//this completes all LDA function 
 		//the distribution is found in distribution .text

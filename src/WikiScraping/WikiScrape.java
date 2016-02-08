@@ -192,7 +192,9 @@ public class WikiScrape {
 	
 	public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
 		
-		WikiScrape ws = new WikiScrape( 6 );
+		
+		//CHANGE ARTICLE NUMBER FROM THE EXCEL SHEET
+		WikiScrape ws = new WikiScrape( 200 );
 		ws.scrape();
 		ws.writeGroundTruth();
 		TextConversion.convertToTxt();

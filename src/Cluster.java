@@ -58,11 +58,16 @@ public class Cluster {
 		            Cluster newCluster = new Cluster();
 		            newCluster.clusterNo = "" + sc.nextInt();
 		            sc.nextFloat();
-		            for(int i = 0 ; i < 20 ; i++) {
-		            	newCluster.keywords.add(sc.next());
+		            
+		            String words = sc.nextLine();
+		            String[] splitWords = words.split(" ");
+		            
+		            for(String w : splitWords) {
+		            	newCluster.keywords.add(w);
 		            }
+		         
 		            clusters.add(newCluster);
-		            sc.nextLine();
+		            
 		            
 		        }
 		        sc.close();
@@ -75,7 +80,7 @@ public class Cluster {
 		// System.out.println("Successfully scanned the file");
 		 
 		 //read the distribution.txt to find which file belongs to which topic
-		 file = new File("distribution.txt");
+		 file = new File("distribution-1.txt");
 		 try {
 
 		        Scanner sc = new Scanner(file);

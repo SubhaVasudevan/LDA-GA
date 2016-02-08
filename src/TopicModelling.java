@@ -11,7 +11,7 @@ import java.io.*;
 public class TopicModelling {
 
 	//public static void main(String[] args) throws IOException {
-	public void LDA(int numberOfTopics, int numberOfIterations, boolean topicFile) throws IOException {
+	public void LDA(int numberOfTopics, int numberOfIterations, boolean topicFile, int chromosomeNo) throws IOException {
 		// TODO Auto-generated method stub
 		
 		//import documents from the texts to Mallet format
@@ -54,7 +54,7 @@ public class TopicModelling {
 
         // Use two parallel samplers, which each look at one half the corpus and combine
         //  statistics after every iteration.
-        model.setNumThreads(2);
+        model.setNumThreads(1);
 
         // Run the model for 50 iterations and stop (this is for testing only, 
         //  for real applications, use 1000 to 2000 iterations)
@@ -62,7 +62,7 @@ public class TopicModelling {
         model.estimate();
      // Show the words and topics in the first instance
         
-        model.printDocumentTopics(new File("distribution.txt"));
+        model.printDocumentTopics(new File("distribution"+chromosomeNo+".txt"));
 
         // The data alphabet maps word IDs to strings
         Alphabet dataAlphabet = instances.getDataAlphabet();
@@ -93,7 +93,7 @@ public class TopicModelling {
         		out.format("\n%d\t%.3f\t", topic, topicDistribution[topic]);
         		int rank = 0;
         		//while (iterator.hasNext()) {
-        		while (iterator.hasNext() && rank < 40) {
+        		while (iterator.hasNext() && rank < 60) {
         			IDSorter idCountPair = iterator.next();
         			out.format("%s ", dataAlphabet.lookupObject(idCountPair.getID()));
         			rank++;
