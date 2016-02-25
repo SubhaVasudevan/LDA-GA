@@ -1,5 +1,5 @@
 /*
- * To change this template, choose Tools | Templates
+   * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
 
@@ -198,6 +198,8 @@ public class Main {
 		//get the data and construct a hashtable with it
 		while(truthFile.hasNextLine()) {
 			String line = truthFile.nextLine();
+			//System.out.println(line);
+			
 			String[] split = line.split("# ");
 			truthData.put(split[0], split[1]);
 		}
@@ -209,11 +211,15 @@ public class Main {
 			Cluster cl = clusters.get(i);
 			
 			String name = cl.articles.get(0);
-			List<String> sources = cl.sourceFiles;
+			List<String> sources = cl.sourceFiles;	
 			
 			//retrieve the article from the truth file
 			String sourceFiles = truthData.get(name);
-			String[] sourceSplit = sourceFiles.split(" ");
+			String[] sourceSplit = null;
+			
+			if(sourceFiles != null){
+			  sourceSplit = sourceFiles.split(" ");
+			}
 			
 			//calculating precision
 			int deno = sources.size();
@@ -303,9 +309,15 @@ public class Main {
 		//this completes all LDA function 
 		//the distribution is found in distribution .text
 		//the code to write the topics to a file is still to be written.
-		geneticLogic.geneticLogic();
+		/*
+		 * LDA-GA+SR
+		 */
+		geneticLogic.geneticLogic(articleMap.size());
 		
-		
+		/*
+		 * LDA+SR
+		 */
+		//LDA.justLDA();
 		
 		//create clusters based on the distribution.txt
 		List<Cluster> clusters = Cluster.createClusters();
@@ -316,13 +328,13 @@ public class Main {
 		//perform the job of splitting the cluster into 2
 		Cluster.cleanCluster(clusters, articleMap, sourceFileMap);
 		
-		System.out.println("clusters before cleaning source file \n \n ");
-		printOutput(clusters);
+		//System.out.println("clusters before cleaning source file \n \n ");
+		//printOutput(clusters);
 		
 		//there might be some clusters with no article in them but all source files
 		//to handle that we use the following technique/function
 		Cluster.cleanSourceFileCluster(clusters,sourceFileMap);
-		System.out.println("Clusters after cleaning the source file");
+		//System.out.println("Clusters after cleaning the source file");
 		printOutput(clusters);
 		
 		calculatePrecisionRecall(clusters);

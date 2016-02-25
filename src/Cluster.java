@@ -94,14 +94,65 @@ public class Cluster {
 		            //read the third string or int which is the topic number
 		        	sc.nextInt();
 		        	String name = sc.next();   //the document name
-		        	int topicNo = sc.nextInt(); //he topic it belongs to
 		        	
+		        	
+		        	//
+		        	//
+		        	//LDA+SR 
+		        	/*while( sc.hasNext() ){
+		        		int topicNo = sc.nextInt(); //the topic it belongs to
+		        		//System.out.println(topicNo);
+		        		double proportion = sc.nextDouble();
+		        	
+		        		if(proportion > 0.5){
+		        			if(name.contains("$AAA$")) {
+		        				clusters.get(topicNo).articles.add(name);
+		        			} else {
+		        				clusters.get(topicNo).sourceFiles.add(name);
+		        			}
+		        		}else{
+		        			break;
+		        		}
+		        	}*/
+		        	//LDA+SR
+		        	//
+		        	//
+		        	
+		        	/*
+		        	 * LDA-GA + SR
+		        	 */
+		        	
+		        	int topicNo = sc.nextInt(); //he topic it belongs to
 		        	//see if the document is an article or source file by seeing the name
 		        	if(name.contains("$AAA$")) {
 		        		clusters.get(topicNo).articles.add(name);
 		        	} else {
 		        		clusters.get(topicNo).sourceFiles.add(name);
 		        	}
+		        	
+		        	
+		        	//
+		        	//
+		        	//
+		        	//a little change to verify if this boosts precision
+		        	if(sc.nextDouble() < 0.5) {
+		        		topicNo = sc.nextInt();
+		        		if(!name.contains("$AAA$")) {
+		        			clusters.get(topicNo).sourceFiles.add(name);
+		        		}
+		        	}
+		        	/*
+		        	 * LDA-GA+SR
+		        	 */
+		        	//
+		        	//
+		        	//
+		        	
+		        	
+		        	
+		        	
+		        	
+		        	
 		        	sc.nextLine();
 		        }
 		        sc.close();
@@ -111,6 +162,7 @@ public class Cluster {
 		 }
 		 
 		//System.out.println("returning clusters");
+		// System.out.println("Cluster size" + clusters.size());
 		return clusters;
 		
 	}
@@ -149,10 +201,13 @@ public class Cluster {
 		}
 		
 		
+		System.out.println("Source File size " + sourceFiles.size());
+		System.out.println("Cluster size" + clusters.size());
+		
 		//once all the source files have been collected figure out which cluster these files belong to
 		for(int i = 0 ; i < sourceFiles.size() ; i++) {
 			int maxMatch = Integer.MIN_VALUE;
-			int maxMatchClusterNo = 0;
+			int maxMatchClusterNo = -1;
 			
 			//get all the keywords of the source file
 			String[] split = sourceFiles.get(i).keyWords.split(" ");
@@ -174,10 +229,23 @@ public class Cluster {
 			}
 			
 			
+			
 			//assign the source file to that cluster
+			if(maxMatchClusterNo > -1) {
 			clusters.get(maxMatchClusterNo).sourceFiles.add(sourceFiles.get(i).name);
+			}
+			
 			
 		}
+		
+		for(int j = 0 ; j < clusters.size() ; j++) {
+			List<String> sources = clusters.get(j).sourceFiles;
+			Set<String> foo = new HashSet<String>(sources);
+			clusters.get(j).sourceFiles.removeAll(sources);
+			clusters.get(j).sourceFiles.addAll(foo);
+
+		}
+		
 			
 	}
 	
@@ -235,8 +303,8 @@ public class Cluster {
 				//so instead of having the unique words as a set, lets change the unique
 				//words into a hashmap
 				for(int i = 0 ; i < articlesInCluster.size() ; i++) {
-					System.out.println(articlesInCluster.get(i).name);
-					System.out.println(articlesInCluster.get(i).getKeyWords());
+					//System.out.println(articlesInCluster.get(i).name);
+					//System.out.println(articlesInCluster.get(i).getKeyWords());
 					String[] keywordArray = articlesInCluster.get(i).getKeyWords().split(" ");
 					Set<String> keyWordSet = new HashSet<String>(Arrays.asList(keywordArray));
 					articlesInCluster.get(i).uniqueKeyWordSet = keyWordSet;
@@ -312,7 +380,7 @@ public class Cluster {
 				
 				//for each source file find the amount of overlap it has with each of the article
 				for(int i = 0 ; i < sourceFilesInCluster.size(); i++) {
-					System.out.println(sourceFilesInCluster.get(i).getName());
+					//System.out.println(sourceFilesInCluster.get(i).getName());
 					int max = Integer.MIN_VALUE;
 					int clusterOverLapNo = -1;
 					//compare the amount of overlap of the source file with each of the articles 

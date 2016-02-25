@@ -14,21 +14,24 @@ public class geneticLogic {
 	static //a hashtable to save the fitness for values that have already been saved
 	Hashtable<String, Double> fitnessTable = new Hashtable<String, Double>();
 	
-	//the initial population of size 6
-	static int[][] initialPopulation = new int[6][2];
+	//the initial population of size 9
+	static int[][] initialPopulation = new int[9][2];
 	
 	//to get the fitness values
-	static double[] fitnessValues = new double[6];
+	static double[] fitnessValues = new double[9];
 	
 	/**
 	 * the total number of documents that are being processed. Put them in a folder and add the folder path here.
 	 */
 	static int numberOfDocuments = new File("txtData").listFiles().length;
+	static int min;
+	static int max;
 
 	//public static void main(String[] args) throws IOException, InterruptedException {
-	public static void geneticLogic() throws IOException, InterruptedException {
+	public static void geneticLogic(int noOfArticles) throws IOException, InterruptedException {
 		
-		
+		min = (int) noOfArticles / 2;
+		max = numberOfDocuments - min;;
 		
 		boolean maxFitnessFound = false;
 		
@@ -37,22 +40,24 @@ public class geneticLogic {
 			
 			//the first value is the number of topics. Assign a range which you think is reasonable
 			//the second value is the number of iterations
-			initialPopulation[i][0] = (int) Math.floor(Math.random()*400 + 100);
-			initialPopulation[i][1] = (int) Math.floor(Math.random()*2000 + 1);
+			initialPopulation[i][0] = (int) Math.floor(Math.random()*max + min);
+			initialPopulation[i][1] = (int) Math.floor(Math.random()*1500 + 500);
 			
 			//initialPopulation[i][0] = 2;
 		    //initialPopulation[i][1] = 500;
 		}
 		
-		//stop when you reach 100 iterations and take the best chromosome found till now
+		//stop when you reach 50 iterations and take the best chromosome found till now
 		int iterationNo = 0;
 		
 		while( !maxFitnessFound && iterationNo < 50) {
 			
+			System.out.println("Interation No : " + iterationNo);
+			
 			//to get the fitness values
-			fitnessValues = new double[6];
+			fitnessValues = new double[9];
 		
-			GeneticThread[] threads = new GeneticThread[6];
+			GeneticThread[] threads = new GeneticThread[9];
 			//for every chromosome in the initial population
 			for( int i = 0 ; i < initialPopulation.length ; i++) {
 				threads[i] = new GeneticThread(i);
@@ -70,7 +75,7 @@ public class geneticLogic {
 			int[][] newPopulation = new int[initialPopulation.length][2];
 		
 			//copy only the top 1/3rd of the chromosomes to the new population 
-			for(int i = 0 ; i < (initialPopulation.length / 3) ; i++) {
+			for(int i = 0 ; i < (initialPopulation.length / 4) ; i++) {
 				double maxFitness = Integer.MIN_VALUE;
 				int maxFitnessChromosome = -1;
 				for(int j = 0 ; j < initialPopulation.length ; j++) {
@@ -83,13 +88,22 @@ public class geneticLogic {
 						 */
 						
 						//CHANGE QUALITY THRESHOLD HERE
-						if(maxFitness > 0.80) {
+						if(maxFitness > 0.5) {
 							//run the function again to get the words in each topic
 							//the third parameter states that the topics are to be written to a file
-							//create an instance of the topic modelling class
+							//create an instance of the topic modeling class
 							TopicModelling tm = new TopicModelling();
 							tm.LDA(initialPopulation[j][0],initialPopulation[j][1], true, -1);
 							System.out.println("the best distribution is " + initialPopulation[j][0] + " topics and " + initialPopulation[j][1] + "iterations and fitness is " + maxFitness);
+
+							//
+							//Ranking only
+							//
+							//
+							//
+							Ranking.createDocTopMatrix(numberOfDocuments,initialPopulation[j][0]);
+							//
+							//
 							maxFitnessFound = true;
 							break;						
 						}
@@ -112,19 +126,35 @@ public class geneticLogic {
 		
 		
 			//perform crossover - to fill the rest of the 2/3rd of the initial Population
-			for(int i = 0 ; i < initialPopulation.length / 3  ; i++ ) {
+			for(int i = 0 ; i < initialPopulation.length / 4  ; i++ ) {
 				newPopulation[(i+1)*2][0] = newPopulation[i][0];
-				newPopulation[(i+1)*2][1] = (int) Math.floor(Math.random()*2000 + 1);
-				newPopulation[(i+1)*2+1][0] = (int) Math.floor(Math.random()*400 + 100);
+				newPopulation[(i+1)*2][1] = (int) Math.floor(Math.random()*1500 + 500);
+				newPopulation[(i+1)*2+1][0] = (int) Math.floor(Math.random()*max + min);
 				newPopulation[(i+1)*2+1][1] = newPopulation[i][1];
 			}
-		
+			
+			//performing crossovers based on the best combinations of the previous generation
+			int bestTopicNo1 = initialPopulation[0][0];
+			int bestTopicNo2 = initialPopulation[1][0];
+			int bestIteration = (int) Math.ceil((initialPopulation[0][1] + initialPopulation[1][1])/2);
+			
+			newPopulation[6][0] = (int) Math.ceil((bestTopicNo1 + bestTopicNo2) / 2);
+			newPopulation[6][1] = newPopulation[7][1] = newPopulation[8][1] = bestIteration;
+			newPopulation[7][0] = (bestTopicNo1 > bestTopicNo2) ? bestTopicNo1 + (int)Math.ceil(bestTopicNo1 - bestTopicNo2)/2:
+				bestTopicNo2 + (int)Math.ceil(bestTopicNo2 - bestTopicNo1)/2;
+			newPopulation[7][0] = newPopulation[7][0] > 0 ? newPopulation[7][0] : min;
+			newPopulation[7][0] = newPopulation[7][0] < max + min ? newPopulation[7][0] : max + min;
+			newPopulation[8][0] = (bestTopicNo1 > bestTopicNo2) ? bestTopicNo2 - (int)Math.ceil(bestTopicNo1 - bestTopicNo2)/2:
+				bestTopicNo1 - (int)Math.ceil(bestTopicNo2 - bestTopicNo1)/2;
+			newPopulation[8][0] = newPopulation[8][0] > 0 ? newPopulation[8][0] : min;
+			newPopulation[8][0] = newPopulation[8][0] < max + min ? newPopulation[8][0] : max + min;
+			
 			//substitute the initial population with the new population and continue 
 			initialPopulation = newPopulation;
 			
 			//increment the iteration number
 			iterationNo++;
-			
+			 
 			/**The genetic algorithm loop will not exit until the required fitness is reached.
 			 * For some cases, we might expect a very high fitness that will never be reached.
 			 * In such cases add a variable to check how many times the GA loop is repeated.
@@ -137,7 +167,20 @@ public class geneticLogic {
 			TopicModelling tm = new TopicModelling();
 			tm.LDA(initialPopulation[0][0],initialPopulation[0][1], true, -1);
 			System.out.println("the best distribution is " + initialPopulation[0][0] + " topics and " + initialPopulation[0][1] + "iterations ");
+			//
+			//Ranking only
+			//
+			//
+			//
+			Ranking.createDocTopMatrix(numberOfDocuments,initialPopulation[0][0]);
+			//
+			//
+			
 		}
+		
+		
+		
+		
 		
 	}
 	
